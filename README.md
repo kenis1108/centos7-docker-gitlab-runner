@@ -138,7 +138,7 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub sxzq@172.17.8.195
 实战:
 
 1. 确保服务器可以连外网
-2. `git clone [git@gitlab.chinacsci.com](mailto:git@gitlab.chinacsci.com):test-gitlab-cicd/centos7-docker-gitlab-runner.git`
+2. `git clone git@gitlab.chinacsci.com:test-gitlab-cicd/centos7-docker-gitlab-runner.git`
 3. 修改centos7_install_docker.sh
 4. 用root执行centos7_install_docker.sh
 5. 配置密钥
