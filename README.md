@@ -50,7 +50,7 @@ before_script:
 build-job:
   stage: build
   only:
-    - master
+    - main
   tags:
     - sit
   script:
