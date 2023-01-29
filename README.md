@@ -141,5 +141,6 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub sxzq@172.17.8.195
 2. `git clone [git@gitlab.chinacsci.com](mailto:git@gitlab.chinacsci.com):test-gitlab-cicd/centos7-docker-gitlab-runner.git`
 3. 修改centos7_install_docker.sh
 4. 用root执行centos7_install_docker.sh
-5. 复制setup.sh到服务器上项目的部署目录
-6. 复制.gitlab-ci.yml到项目中编辑并提交
+5. 配置密钥
+6. 复制setup.sh到服务器上项目的部署目录
+7. 复制.gitlab-ci.yml到项目中编辑并提交
