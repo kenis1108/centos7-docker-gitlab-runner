@@ -8,7 +8,7 @@ before_script:
 build-job:
   stage: build
   only:
-    - main
+    - master
   tags:
     - sit
   script:
@@ -17,7 +17,9 @@ build-job:
     - yarn build
     - ls
     - echo "=============================== 打包完成 ======================================== "
-    - yarn tosit
+    - zip -r dist.zip dist # 压缩
+    - scp dist.zip appadmin@172.17.8.195:/data/web/sxzq # 上传
+    - ssh appadmin@172.17.8.195 "cd /data/web/sxzq;sh ./setup.sh" # 执行服务器上的部署脚本
     - echo “=============================== 发布完成 ======================================== ”
   artifacts:
     name: "dist"

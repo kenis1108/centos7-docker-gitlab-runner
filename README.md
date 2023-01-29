@@ -1,92 +1,136 @@
-# centos7-docker-gitlab-runner
+# Gitlab-CI/CD (针对大B端前端-自行改ip和路径)
 
+## 准备
 
+参考: 
 
-## Getting started
+[Run GitLab Runner in a container | GitLab](https://docs.gitlab.com/runner/install/docker.html)
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+公司虚拟机发行版: CentOS Linux release 7.9.2009
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+![Untitled](assets/images/Untitled.png)
 
-## Add your files
+![Untitled](assets/images/Untitled%201.png)
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+本地测试机: centos:7(docker)
 
+```bash
+docker run -itd -v C:\Users\kk\Documents\zzsz\centos7-docker-gitlab-runner:/root/centos7-docker-gitlab-runner --privileged --name test-centos-gitlab-cicd centos:7 init
+# --privileged 特权模式
+# init 可运行systemctl等命令
 ```
-cd existing_repo
-git remote add origin http://gitlab.chinacsci.com/test-gitlab-cicd/centos7-docker-gitlab-runner.git
-git branch -M main
-git push -uf origin main
+
+![Untitled](assets/images/Untitled%202.png)
+
+可ping通内网gitlab
+
+![Untitled](assets/images/Untitled%203.png)
+
+## 一、服务器创建脚本（备份-解压）
+
+```bash
+# /data/web/setup.sh
+time=`date +%y%m%d%H%M` # 获取当前时间并格式化
+newdir=`mv platform platform${time}` # 备份
+$newdir # 运行命令
+unzip dist.zip # 解压
+mv dist platform # 重命名
 ```
 
-## Integrate with your tools
+## 二、新建.gitlab-ci.yml
 
-- [ ] [Set up project integrations](http://gitlab.chinacsci.com/test-gitlab-cicd/centos7-docker-gitlab-runner/-/settings/integrations)
+```yaml
+stages:
+  - build
 
-## Collaborate with your team
+before_script:
+  - echo "+++++++++++++++++++++ 开始构建 +++++++++++++++++++++++++++++++++"
+  - source ~/.bashrc
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+build-job:
+  stage: build
+  only:
+    - master
+  tags:
+    - sit
+  script:
+    - yarn
+    - echo "=============================== 开始打包 ======================================== "
+    - yarn build
+    - ls
+    - echo "=============================== 打包完成 ======================================== "
+    - zip -r dist.zip dist # 压缩
+    - scp dist.zip appadmin@172.17.8.195:/data/web/sxzq # 上传
+    - ssh appadmin@172.17.8.195 "cd /data/web/sxzq;sh ./setup.sh" # 执行服务器上的部署脚本
+    - echo “=============================== 发布完成 ======================================== ”
+  artifacts:
+    name: "dist"
+    paths: 
+      - dist/
+```
 
-## Test and Deploy
+## 三、配置runner(远程容器)和nodejs(nvm)
 
-Use the built-in continuous integration in GitLab.
+公司的服务器一般都是CentOS7
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+```bash
+# /script/centos7_install_docker.sh
 
-***
+#! /bin/bash -ex
 
-# Editing this README
+gitlab_url="http://gitlab1.chinacscs.com/"
+token="GR1348941FRE_FVWBKkdG_H8rbmN2"
+description="XX项目"
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+if [$(yum list installed | grep docker | awk '{print $1}' | xargs) -eq ""]
+then 
+    echo "无旧版本"
+else 
+    echo "============================ 开始删除旧版本 =============================="
+    yum -y remove $(yum list installed | grep docker | awk '{print $1}' | xargs)
+    echo "============================ 删除旧版本完成 =============================="
+fi
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+echo "============================ 开始设置yum下载docker的国内源 =============================="
+yum-config-manager \
+    --add-repo \
+    http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+echo "============================ 已设置国内源(aliyun) =============================="
 
-## Name
-Choose a self-explaining name for your project.
+echo "============================ 开始安装docker =============================="
+yum -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+echo "============================ docker已安装 =============================="
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+echo "============================ 启动docker服务 =============================="
+systemctl start docker
+echo "============================ docker服务已启动 =============================="
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+echo "============================ 开始拉取gitlab/gitlab-runner镜像 =============================="
+docker pull gitlab/gitlab-runner
+echo "============================ 拉取镜像完成 =============================="
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+echo "============================ 运行容器 =============================="
+docker run -itd --restart=always --name gitlab-runner \
+-v /root/gitlab-runner/config:/etc/gitlab-runner \
+-v /var/run/docker.sock:/var/run/docker.sock  gitlab/gitlab-runner
+echo "============================ 容器已运行 =============================="
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+echo "============================ 开始注册runner =============================="
+docker exec gitlab-runner /bin/bash -c "gitlab-runner register --non-interactive --url ${gitlab_url} --registration-token ${token} --executor 'shell' --description ${description}"
+echo "============================ 注册runner完成 =============================="
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+echo "============================ 给用户gitlab-runner安装nvm(nodejs) =============================="
+docker exec -u gitlab-runner gitlab-runner /bin/bash -c "git clone https://gitee.com/mirrors/nvm ~/.nvm"
+docker cp ../assets/.bashrc gitlab-runner:/home/gitlab-runner/.bashrc
+docker exec -u gitlab-runner gitlab-runner /bin/bash -c "source ~/.bashrc && nvm install 16.13.0 && nvm use 16.13.0"
+echo "============================ nvm(nodejs)安装完成 =============================="
+```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## 四、给gitlab-runner用户配置ssh密钥
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```bash
+docker exec -it -u gitlab-runner gitlab-runner /bin/bash
+# ssh密钥
+ssh-keygen -t rsa -C "kkbdsg"
+ssh-copy-id -i ~/.ssh/id_rsa.pub sxzq@172.17.8.195
+```
