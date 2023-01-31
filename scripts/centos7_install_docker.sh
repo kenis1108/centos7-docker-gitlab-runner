@@ -1,9 +1,10 @@
 #! /bin/bash -ex
+# scripts/centos7_install_docker.sh
 
 gitlab_url="http://gitlab1.chinacscs.com/"
 token="GR1348941FRE_FVWBKkdG_H8rbmN2"
 description="XX项目"
-
+nodejs_version="16.13.0"
 
 if [$(yum list installed | grep docker | awk '{print $1}' | xargs) -eq ""]
 then 
@@ -45,5 +46,5 @@ echo "============================ 注册runner完成 ==========================
 echo "============================ 给用户gitlab-runner安装nvm(nodejs) =============================="
 docker exec -u gitlab-runner gitlab-runner /bin/bash -c "git clone https://gitee.com/mirrors/nvm ~/.nvm"
 docker cp ../assets/.bashrc gitlab-runner:/home/gitlab-runner/.bashrc
-docker exec -u gitlab-runner gitlab-runner /bin/bash -c "source ~/.bashrc && nvm install 16.13.0 && nvm use 16.13.0"
+docker exec -u gitlab-runner gitlab-runner /bin/bash -c "source ~/.bashrc && nvm install ${nodejs_version} && nvm use ${nodejs_version} && npm i -g yarn"
 echo "============================ nvm(nodejs)安装完成 =============================="
