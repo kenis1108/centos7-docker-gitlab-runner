@@ -15,3 +15,16 @@ build-job:
     - nvm -v
     - node -v
     - yarn -v
+    - yarn
+    - echo "=============================== 开始打包 ======================================== "
+    - yarn build
+    - ls
+    - echo "=============================== 打包完成 ======================================== "
+    - zip -r dist.zip dist # 压缩
+    - scp dist.zip appadmin@172.17.8.195:/data/web/sxzq # 上传
+    - ssh appadmin@172.17.8.195 "cd /data/web/sxzq;sh ./setup.sh" # 执行服务器上的部署脚本
+    - echo “=============================== 发布完成 ======================================== ”
+  artifacts:
+    name: "dist"
+    paths: 
+      - dist/

@@ -33,19 +33,18 @@ docker run -itd -v C:\Users\kk\Documents\zzsz\centos7-docker-gitlab-runner:/root
 ##  一、服务器创建脚本（备份-解压）
   
   
-```bash
-# /data/web/setup.sh
+```sh
 time=`date +%y%m%d%H%M` # 获取当前时间并格式化
 newdir=`mv platform platform${time}` # 备份
 $newdir # 运行命令
 unzip dist.zip # 解压
 mv dist platform # 重命名
-```
+```  
   
 ##  二、新建.gitlab-ci.yml
   
   
-```yaml
+```yml
 stages:
   - build
   
@@ -60,6 +59,9 @@ build-job:
   tags:
     - sit
   script:
+    - nvm -v
+    - node -v
+    - yarn -v
     - yarn
     - echo "=============================== 开始打包 ======================================== "
     - yarn build
@@ -73,7 +75,7 @@ build-job:
     name: "dist"
     paths: 
       - dist/
-```
+```  
   
 ##  三、配置runner(远程容器)和nodejs(nvm)
   
@@ -87,7 +89,7 @@ build-job:
 gitlab_url="http://gitlab1.chinacscs.com/"
 token="GR1348941FRE_FVWBKkdG_H8rbmN2"
 description="XX项目"
-  
+nodejs_version="16.13.0"
   
 if [$(yum list installed | grep docker | awk '{print $1}' | xargs) -eq ""]
 then 
@@ -129,7 +131,7 @@ echo "============================ 注册runner完成 ==========================
 echo "============================ 给用户gitlab-runner安装nvm(nodejs) =============================="
 docker exec -u gitlab-runner gitlab-runner /bin/bash -c "git clone https://gitee.com/mirrors/nvm ~/.nvm"
 docker cp ../assets/.bashrc gitlab-runner:/home/gitlab-runner/.bashrc
-docker exec -u gitlab-runner gitlab-runner /bin/bash -c "source ~/.bashrc && nvm install 16.13.0 && nvm use 16.13.0"
+docker exec -u gitlab-runner gitlab-runner /bin/bash -c "source ~/.bashrc && nvm install ${nodejs_version} && nvm use ${nodejs_version} && npm i -g yarn"
 echo "============================ nvm(nodejs)安装完成 =============================="
 ```  
   

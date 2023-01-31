@@ -37,46 +37,11 @@ docker run -itd -v C:\Users\kk\Documents\zzsz\centos7-docker-gitlab-runner:/root
 
 ## 一、服务器创建脚本（备份-解压）
 
-```bash
-# /data/web/setup.sh
-time=`date +%y%m%d%H%M` # 获取当前时间并格式化
-newdir=`mv platform platform${time}` # 备份
-$newdir # 运行命令
-unzip dist.zip # 解压
-mv dist platform # 重命名
-```
+@import "./scripts/setup.sh"
 
 ## 二、新建.gitlab-ci.yml
 
-```yaml
-stages:
-  - build
-
-before_script:
-  - echo "+++++++++++++++++++++ 开始构建 +++++++++++++++++++++++++++++++++"
-  - source ~/.bashrc
-
-build-job:
-  stage: build
-  only:
-    - main
-  tags:
-    - sit
-  script:
-    - yarn
-    - echo "=============================== 开始打包 ======================================== "
-    - yarn build
-    - ls
-    - echo "=============================== 打包完成 ======================================== "
-    - zip -r dist.zip dist # 压缩
-    - scp dist.zip appadmin@172.17.8.195:/data/web/sxzq # 上传
-    - ssh appadmin@172.17.8.195 "cd /data/web/sxzq;sh ./setup.sh" # 执行服务器上的部署脚本
-    - echo “=============================== 发布完成 ======================================== ”
-  artifacts:
-    name: "dist"
-    paths: 
-      - dist/
-```
+@import "./.gitlab-ci.yml"
 
 ## 三、配置runner(远程容器)和nodejs(nvm)
 
