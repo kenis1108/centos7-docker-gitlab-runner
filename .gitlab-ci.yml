@@ -24,7 +24,7 @@ build-job:
     - scp dist.zip appadmin@172.17.8.195:/data/web/sxzq # 上传
     - ssh appadmin@172.17.8.195 "cd /data/web/sxzq;sh ./setup.sh" # 执行服务器上的部署脚本
     - echo “=============================== 发布完成 ======================================== ”
-  artifacts:
+  artifacts: # 保留打好的包,可在job页面下载
     name: "dist"
     paths: 
       - dist/

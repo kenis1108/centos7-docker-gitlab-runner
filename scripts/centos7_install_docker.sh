@@ -6,13 +6,14 @@ token="GR1348941FRE_FVWBKkdG_H8rbmN2"
 description="XX项目"
 nodejs_version="16.13.0"
 
-if [$(yum list installed | grep docker | awk '{print $1}' | xargs) -eq ""]
+docker version
+if [ $? -eq 0 ]
 then 
-    echo "无旧版本"
-else 
     echo "============================ 开始删除旧版本 =============================="
     yum -y remove $(yum list installed | grep docker | awk '{print $1}' | xargs)
     echo "============================ 删除旧版本完成 =============================="
+else 
+    echo "无旧版本"
 fi
   
 echo "============================ 开始设置yum下载docker的国内源 =============================="
