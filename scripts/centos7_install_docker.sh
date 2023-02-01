@@ -1,6 +1,6 @@
 #! /bin/bash -ex
 # scripts/centos7_install_docker.sh
-  
+
 gitlab_url="http://gitlab1.chinacscs.com/"
 token="GR1348941FRE_FVWBKkdG_H8rbmN2"
 description="XX项目"
