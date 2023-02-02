@@ -22,7 +22,7 @@ build-job:
     - echo "=============================== 打包完成 ======================================== "
     - zip -r dist.zip dist # 压缩
     - scp dist.zip appadmin@172.17.8.195:/data/web/sxzq # 上传
-    - ssh appadmin@172.17.8.195 "cd /data/web/sxzq;sh ./setup.sh" # 执行服务器上的部署脚本
+    - ssh appadmin@172.17.8.195 "cd /data/web/sxzq;mv platform platform$(date +%y%m%d%H%M);unzip dist.zip && mv dist platform;" # 替换包
     - echo “=============================== 发布完成 ======================================== ”
   artifacts: # 保留打好的包,可在job页面下载
     name: "dist"

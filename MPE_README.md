@@ -35,21 +35,17 @@ docker run -itd -v C:\Users\kk\Documents\zzsz\centos7-docker-gitlab-runner:/root
 
 ![Untitled](assets/images/Untitled%203.png)
 
-## 一、服务器创建脚本（备份-解压）
-
-@import "./scripts/setup.sh"
-
-## 二、新建.gitlab-ci.yml
+## 一、新建.gitlab-ci.yml
 
 @import "./.gitlab-ci.yml"
 
-## 三、配置runner(远程容器)和nodejs(nvm)
+## 二、配置runner(远程容器)和nodejs(nvm)
 
 公司的服务器一般都是CentOS7
 
 @import "./scripts/centos7_install_docker.sh"
 
-## 四、给gitlab-runner用户配置ssh密钥
+## 三、给gitlab-runner用户配置ssh密钥
 
 ```bash
 docker exec -it -u gitlab-runner gitlab-runner /bin/bash
@@ -65,10 +61,9 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub sxzq@172.17.8.195
 3. 修改centos7_install_docker.sh里的变量
 4. 用root执行centos7_install_docker.sh
 5. 配置密钥
-6. 复制setup.sh到服务器上项目的部署目录
-7. 复制.gitlab-ci.yml到项目中编辑并提交
+6. 复制.gitlab-ci.yml到项目中编辑并提交
 
-## 五、新增runner
+## 四、新增runner
 
 1. 同一台服务器的同一个容器里新增runner的情况
 

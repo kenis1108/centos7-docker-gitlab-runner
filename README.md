@@ -30,18 +30,7 @@ docker run -itd -v C:\Users\kk\Documents\zzsz\centos7-docker-gitlab-runner:/root
   
 ![Untitled](assets/images/Untitled%203.png )
   
-##  一、服务器创建脚本（备份-解压）
-  
-  
-```sh
-time=`date +%y%m%d%H%M` # 获取当前时间并格式化
-newdir=`mv platform platform${time}` # 备份
-$newdir # 运行命令
-unzip dist.zip # 解压
-mv dist platform # 重命名
-```  
-  
-##  二、新建.gitlab-ci.yml
+##  一、新建.gitlab-ci.yml
   
   
 ```yml
@@ -69,7 +58,7 @@ build-job:
     - echo "=============================== 打包完成 ======================================== "
     - zip -r dist.zip dist # 压缩
     - scp dist.zip appadmin@172.17.8.195:/data/web/sxzq # 上传
-    - ssh appadmin@172.17.8.195 "cd /data/web/sxzq;sh ./setup.sh" # 执行服务器上的部署脚本
+    - ssh appadmin@172.17.8.195 "cd /data/web/sxzq;mv platform platform$(date +%y%m%d%H%M);unzip dist.zip && mv dist platform;" # 替换包
     - echo “=============================== 发布完成 ======================================== ”
   artifacts: # 保留打好的包,可在job页面下载
     name: "dist"
@@ -77,7 +66,7 @@ build-job:
       - dist/
 ```  
   
-##  三、配置runner(远程容器)和nodejs(nvm)
+##  二、配置runner(远程容器)和nodejs(nvm)
   
   
 公司的服务器一般都是CentOS7
@@ -147,7 +136,7 @@ docker exec -u gitlab-runner gitlab-runner /bin/bash -c "source ~/.bashrc && nvm
 echo "============================ nvm(nodejs)安装完成 =============================="
 ```  
   
-##  四、给gitlab-runner用户配置ssh密钥
+##  三、给gitlab-runner用户配置ssh密钥
   
   
 ```bash
@@ -164,10 +153,9 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub sxzq@172.17.8.195
 3. 修改centos7_install_docker.sh里的变量
 4. 用root执行centos7_install_docker.sh
 5. 配置密钥
-6. 复制setup.sh到服务器上项目的部署目录
-7. 复制.gitlab-ci.yml到项目中编辑并提交
+6. 复制.gitlab-ci.yml到项目中编辑并提交
   
-##  五、新增runner
+##  四、新增runner
   
   
 1. 同一台服务器的同一个容器里新增runner的情况
