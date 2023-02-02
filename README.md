@@ -71,7 +71,7 @@ build-job:
     - scp dist.zip appadmin@172.17.8.195:/data/web/sxzq # 上传
     - ssh appadmin@172.17.8.195 "cd /data/web/sxzq;sh ./setup.sh" # 执行服务器上的部署脚本
     - echo “=============================== 发布完成 ======================================== ”
-  artifacts:
+  artifacts: # 保留打好的包,可在job页面下载
     name: "dist"
     paths: 
       - dist/
@@ -91,19 +91,31 @@ token="GR1348941FRE_FVWBKkdG_H8rbmN2"
 description="XX项目"
 nodejs_version="16.13.0"
   
-if [$(yum list installed | grep docker | awk '{print $1}' | xargs) -eq ""]
+docker version
+if [ $? -eq 0 ]
 then 
-    echo "无旧版本"
-else 
     echo "============================ 开始删除旧版本 =============================="
     yum -y remove $(yum list installed | grep docker | awk '{print $1}' | xargs)
     echo "============================ 删除旧版本完成 =============================="
+else 
+    echo "无旧版本"
 fi
   
 echo "============================ 开始设置yum下载docker的国内源 =============================="
-yum-config-manager \
-    --add-repo \
-    http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+yum-config-manager --version
+if [ $? -eq 0 ]
+then
+    yum-config-manager \
+        --add-repo \
+        http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+else
+    # yum-config-manager command not found
+    yum -y install yum-utils
+    yum-config-manager \
+        --add-repo \
+        http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+fi
+  
 echo "============================ 已设置国内源(aliyun) =============================="
   
 echo "============================ 开始安装docker =============================="
