@@ -52,7 +52,7 @@ docker run -itd -v C:\Users\kk\Documents\zzsz\centos7-docker-gitlab-runner:/root
 2. 拉代码 `git clone git@gitlab.chinacsci.com:test-gitlab-cicd/centos7-docker-gitlab-runner.git`
 3. 修改`centos7_install_docker.sh`里的变量
 4. 用root执行centos7_install_docker.sh
-6. 复制.gitlab-ci.yml到项目中编辑并提交
+5. 复制.gitlab-ci.yml到项目中编辑并提交
 
 ## 三、新增runner
 
