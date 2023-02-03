@@ -45,25 +45,16 @@ docker run -itd -v C:\Users\kk\Documents\zzsz\centos7-docker-gitlab-runner:/root
 
 @import "./scripts/centos7_install_docker.sh"
 
-## 三、给gitlab-runner用户配置ssh密钥
-
-```bash
-docker exec -it -u gitlab-runner gitlab-runner /bin/bash
-# ssh密钥
-ssh-keygen -t rsa -C "kkbdsg"
-ssh-copy-id -i ~/.ssh/id_rsa.pub sxzq@172.17.8.195
-```
 
 实战:
 
-1. 确保服务器可以连外网
-2. `git clone git@gitlab.chinacsci.com:test-gitlab-cicd/centos7-docker-gitlab-runner.git`
-3. 修改centos7_install_docker.sh里的变量
+1. 上服务器 `ssh username@ip` && 确保服务器可以连外网和ping通gitlab和部署服务器 && 可以执行scp
+2. 拉代码 `git clone git@gitlab.chinacsci.com:test-gitlab-cicd/centos7-docker-gitlab-runner.git`
+3. 修改`centos7_install_docker.sh`里的变量
 4. 用root执行centos7_install_docker.sh
-5. 配置密钥
 6. 复制.gitlab-ci.yml到项目中编辑并提交
 
-## 四、新增runner
+## 三、新增runner
 
 1. 同一台服务器的同一个容器里新增runner的情况
 
