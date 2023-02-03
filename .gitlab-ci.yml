@@ -12,9 +12,7 @@ build-job:
   tags:
     - sit
   script:
-    - nvm -v
-    - node -v
-    - yarn -v
+    - nvm -v && node -v && yarn -v
     - yarn
     - echo "=============================== 开始打包 ======================================== "
     - yarn build
