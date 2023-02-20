@@ -6,55 +6,70 @@ markdown:
 export_on_save:
   markdown: true
 ---
+# Gitlab-CI/CD (配置针对大B端前端)
 
-# Gitlab-CI/CD (针对大B端前端-自行改ip和路径)
+## 一、新建`.gitlab-ci.yml`
 
-## 准备
+第一种: 在项目主分支(main/master)的根目录新建`.gitlab-ci.yml`并写入下面的内容并提交
 
-参考: 
+![Untitled](assets/images/Untitled%204.png)
 
-[Run GitLab Runner in a container | GitLab](https://docs.gitlab.com/runner/install/docker.html)
+第二种: 在gitlab的流水线编辑器里写入下面的内容
 
-公司虚拟机发行版: CentOS Linux release 7.9.2009
-
-![Untitled](assets/images/Untitled.png)
-
-![Untitled](assets/images/Untitled%201.png)
-
-本地测试机: centos:7(docker)
-
-```bash
-docker run -itd -v C:\Users\kk\Documents\zzsz\centos7-docker-gitlab-runner:/root/centos7-docker-gitlab-runner --privileged --name test-centos-gitlab-cicd centos:7 init
-# --privileged 特权模式
-# init 可运行systemctl等命令
-```
-
-![Untitled](assets/images/Untitled%202.png)
-
-可ping通内网gitlab
-
-![Untitled](assets/images/Untitled%203.png)
-
-## 一、新建.gitlab-ci.yml
+![Untitled](assets/images/Untitled%205.png)
 
 @import "./.gitlab-ci.yml"
 
 ## 二、配置runner(远程容器)和nodejs(nvm)
 
-公司的服务器一般都是CentOS7
+在本地拉取代码`git clone http://gitlab.chinacsci.com/test-gitlab-cicd/centos7-docker-gitlab-runner.git` 
+
+![Untitled](assets/images/Untitled%206.png)
+
+获取gitlab_url和token
+
+![Untitled](assets/images/Untitled%207.png)
+
+修改`scripts/centos7_install_docker.sh`里的变量
+
+![Untitled](assets/images/Untitled%208.png)
 
 @import "./scripts/centos7_install_docker.sh"
 
+到`centos7-docker-gitlab-runner` 文件夹的上一级将该目录上传到服务器上
 
-实战:
+```bash
+# scp 要上传的目录 用户名@ip:目标地址
+scp -r centos7-docker-gitlab-runner appadmin@172.17.8.195:/home/appadmin
+```
 
-1. 上服务器 `ssh username@ip` && 确保服务器可以连外网和ping通gitlab和部署服务器 && 可以执行scp
-2. 拉代码 `git clone git@gitlab.chinacsci.com:test-gitlab-cicd/centos7-docker-gitlab-runner.git`
-3. 修改`centos7_install_docker.sh`里的变量
-4. 用root执行centos7_install_docker.sh
-5. 复制.gitlab-ci.yml到项目中编辑并提交
+![Untitled](assets/images/Untitled%209.png)
+
+输入密码后成功的截图
+
+![Untitled](assets/images/Untitled%2010.png)
+
+登录服务器后切换到root用户
+
+```bash
+# ssh命令: ssh 用户名@ip
+# 切换到root命令: sudo -i
+```
+
+![Untitled](assets/images/Untitled%2011.png)
+
+cd到`centos7-docker-gitlab-runner/scripts`执行安装脚本
+
+```bash
+cd home/appadmin/centos7-docker-gitlab-runner/scripts
+bash ./centos7_install_docker.sh
+```
+
+---
 
 ## 三、新增runner
+
+(登录服务器进行下面的操作)
 
 1. 同一台服务器的同一个容器里新增runner的情况
 
@@ -64,7 +79,7 @@ docker exec gitlab-runner /bin/bash -c "gitlab-runner register --non-interactive
 # 开发环境(nodejs和ssh)就不需要重新配置
 ```
 
-2. 同一台服务器不同容器的情况
+1. 同一台服务器不同容器的情况
 
 ```bash
 # 新开一个容器--name需要换成跟已经存在的容器名不一样的
@@ -78,5 +93,7 @@ docker cp ../assets/.bashrc gitlab-runner1:/home/gitlab-runner/.bashrc
 docker exec -u gitlab-runner gitlab-runner1 /bin/bash -c "source ~/.bashrc && nvm install ${nodejs_version} && nvm use ${nodejs_version} && npm i -g yarn"
 ```
 
-3. 不同服务器重新跑脚本
-4. 根据公司提供的服务器性能,个人建议不要在同一台服务器配太多个runner,因为当同时有多个runner在执行作业时服务器内存不够会自动把后端java服务干掉,一开始以为是后端部署或代码有问题其实是runner的锅导致内存不够用
+1. 不同服务器重新跑脚本
+2. 根据公司提供的服务器性能,个人建议不要在同一台服务器配太多个runner,因为当同时有多个runner在执行作业时服务器内存不够会自动把后端java服务干掉
+
+---
