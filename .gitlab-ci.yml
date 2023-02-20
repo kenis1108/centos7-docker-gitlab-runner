@@ -1,28 +1,45 @@
+# 定义流水线所有的阶段(默认有三个阶段， build 、test 、deploy 三个阶段，即 构建 、测试 、部署)
 stages:
   - build
 
+# 作业执行前需要执行的命令
 before_script:
   - echo "+++++++++++++++++++++ 开始构建 +++++++++++++++++++++++++++++++++"
   - source ~/.bashrc
 
+# 定义一个作业(相当于函数的函数名)
 build-job:
+  # 定义作业所处流水线的阶段
   stage: build
+  # 定义哪些分支运行，限制作业在什么上创建
   only:
     - main
+  # 作业使用的Runner运行器的标签
   tags:
     - sit
+  # 必须参数，运行器需要执行的脚本
   script:
+    # 打印nvm,nodejs,yarn的版本号
     - nvm -v && node -v && yarn -v
+    # 安装依赖
     - yarn
     - echo "=============================== 开始打包 ======================================== "
+    # 执行package.json里的打包命令
     - yarn build
+    # 打印项目根目录
     - ls
     - echo "=============================== 打包完成 ======================================== "
-    - zip -r dist.zip dist # 压缩
-    - scp dist.zip appadmin@172.17.8.195:/data/web/sxzq # 上传
-    - ssh appadmin@172.17.8.195 "cd /data/web/sxzq;mv platform platform$(date +%y%m%d%H%M);unzip dist.zip && mv dist platform;" # 替换包
+    # 压缩打好的包
+    - zip -r dist.zip dist
+    # 将包上传到服务器
+    - scp dist.zip appadmin@172.17.8.195:/data/web/sxzq
+    # 替换服务器上的包
+    - ssh appadmin@172.17.8.195 "cd /data/web/sxzq;mv platform platform$(date +%y%m%d%H%M);unzip dist.zip && mv dist platform;"
     - echo “=============================== 发布完成 ======================================== ”
-  artifacts: # 保留打好的包,可在job页面下载
+  # 归档文件列表，指定成功后应附加到job的文件和目录的列表(保留打好的包,可在job页面下载)
+  artifacts:
+    # 打包好的.zip文件名
     name: "dist"
+    # 打包的目录
     paths: 
       - dist/
