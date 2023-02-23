@@ -2,16 +2,18 @@
 #  Gitlab-CI/CD (配置针对大B端前端)
   
   
+***前提: 部署的机器可通外网以及访问内部的gitlab***
+  
 ##  一、新建`.gitlab-ci.yml`
   
   
 第一种: 在项目主分支(main/master)的根目录新建`.gitlab-ci.yml`并写入下面的内容并提交
   
-![Untitled](assets/images/Untitled%204.png )
+![Untitled](assets/images/Untitled.png )
   
 第二种: 在gitlab的流水线编辑器里写入下面的内容
   
-![Untitled](assets/images/Untitled%205.png )
+![Untitled](assets/images/Untitled%201.png )
   
 ```yml
 # 定义流水线所有的阶段(默认有三个阶段， build 、test 、deploy 三个阶段，即 构建 、测试 、部署)
@@ -64,17 +66,17 @@ build-job:
 ##  二、配置runner(远程容器)和nodejs(nvm)
   
   
-在本地拉取代码`git clone http://gitlab.chinacsci.com/test-gitlab-cicd/centos7-docker-gitlab-runner.git` 
+在本地拉取代码`git clone http://gitlab.chihttnacsci.com/test-gitlab-cicd/centos7-docker-gitlab-runner.git` 
   
-![Untitled](assets/images/Untitled%206.png )
+![Untitled](assets/images/Untitled%202.png )
   
 获取gitlab_url和token
   
-![Untitled](assets/images/Untitled%207.png )
+![Untitled](assets/images/Untitled%203.png )
   
 修改`scripts/centos7_install_docker.sh`里的变量
   
-![Untitled](assets/images/Untitled%208.png )
+![Untitled](assets/images/Untitled%204.png )
   
 ```sh
 #! /bin/bash -ex
@@ -166,11 +168,11 @@ echo "============================ gitlab-runner用户配置免密登录部署�
 scp -r centos7-docker-gitlab-runner appadmin@172.17.8.195:/home/appadmin
 ```
   
-![Untitled](assets/images/Untitled%209.png )
+![Untitled](assets/images/Untitled%205.png )
   
 输入密码后成功的截图
   
-![Untitled](assets/images/Untitled%2010.png )
+![Untitled](assets/images/Untitled%206.png )
   
 登录服务器后切换到root用户
   
@@ -179,13 +181,12 @@ scp -r centos7-docker-gitlab-runner appadmin@172.17.8.195:/home/appadmin
 # 切换到root命令: sudo -i
 ```
   
-![Untitled](assets/images/Untitled%2011.png )
+![Untitled](assets/images/Untitled%207.png )
   
 cd到`centos7-docker-gitlab-runner/scripts`执行安装脚本
   
 ```bash
-cd home/appadmin/centos7-docker-gitlab-runner/scripts
-bash ./centos7_install_docker.sh
+cd /home/appadmin/centos7-docker-gitlab-runner/scripts && bash ./centos7_install_docker.sh
 ```
   
 ---
