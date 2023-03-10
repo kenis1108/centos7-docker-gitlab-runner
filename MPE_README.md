@@ -22,6 +22,10 @@ export_on_save:
 
 @import "./.gitlab-ci.yml"
 
+gitlab仓库设置里配置一下几个变量
+
+![Untitled](assets/images/Untitled%208.png)
+
 ## 二、配置runner(远程容器)和nodejs(nvm)
 
 在本地拉取代码`git clone http://gitlab.chihttnacsci.com/test-gitlab-cicd/centos7-docker-gitlab-runner.git` 
