@@ -20,6 +20,7 @@ build-job:
     - sit
   # 必须参数，运行器需要执行的脚本
   script:
+    - sh scripts/send_qy_start.sh
     # 打印nvm,nodejs,yarn的版本号
     - nvm -v && node -v && yarn -v
     # 安装依赖
@@ -37,6 +38,7 @@ build-job:
     # 替换服务器上的包(需根据实际情况到gitlab仓库设置页面---CI/CD---变量里面修改)
     - sshpass -p "$SERVER_PASSWD" ssh $SERVER_USERNAME@$SERVER_IP "cd /data/web/sxzq;mv platform platform$(date +%y%m%d%H%M);unzip dist.zip && mv dist platform;"
     - echo “=============================== 发布完成 ======================================== ”
+    - sh scripts/send_qy_end.sh
   # 归档文件列表，指定成功后应附加到job的文件和目录的列表(保留打好的包,可在job页面下载)
   artifacts:
     # 打包好的.zip文件名
