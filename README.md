@@ -19,6 +19,7 @@
 # 定义流水线所有的阶段(默认有三个阶段， build 、test 、deploy 三个阶段，即 构建 、测试 、部署)
 stages:
   - build
+  - sonar
   
 # 作业执行前需要执行的命令
 before_script:
@@ -49,19 +50,36 @@ build-job:
     - echo "=============================== 打包完成 ======================================== "
     # 压缩打好的包(需根据实际情况修改)
     - zip -r dist.zip dist
-    # 将包上传到服务器(需根据实际情况修改)
-    - scp dist.zip appadmin@172.17.8.195:/data/web/sxzq
-    # 替换服务器上的包(需根据实际情况修改)
-    - ssh appadmin@172.17.8.195 "cd /data/web/sxzq;mv platform platform$(date +%y%m%d%H%M);unzip dist.zip && mv dist platform;"
+    # 将包上传到服务器(需根据实际情况到gitlab仓库设置页面---CI/CD---变量里面修改)
+    - sshpass -p "$SERVER_PASSWD" scp dist.zip $SERVER_USERNAME@$SERVER_IP:/data/web/sxzq
+    # 替换服务器上的包(需根据实际情况到gitlab仓库设置页面---CI/CD---变量里面修改)
+    - sshpass -p "$SERVER_PASSWD" ssh $SERVER_USERNAME@$SERVER_IP "cd /data/web/sxzq;mv platform platform$(date +%y%m%d%H%M);unzip dist.zip && mv dist platform;"
     - echo “=============================== 发布完成 ======================================== ”
   # 归档文件列表，指定成功后应附加到job的文件和目录的列表(保留打好的包,可在job页面下载)
   artifacts:
     # 打包好的.zip文件名
     name: "dist"
-    # 打包的目录
+    # 打包的目录(需根据实际情况修改)
     paths: 
       - dist/
+  
+sonar-job:
+  stage: sonar
+  only:
+    - main
+  tags:
+    - sit
+  script:
+    - ls
+    - java -version
+    - yarn -v
+    - yarn
+    - yarn sonar
 ```  
+  
+gitlab仓库设置里配置一下几个变量
+  
+![Untitled](assets/images/Untitled%208.png )
   
 ##  二、配置runner(远程容器)和nodejs(nvm)
   
