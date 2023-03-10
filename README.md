@@ -165,6 +165,11 @@ echo "============================ 开始注册runner ==========================
 docker exec gitlab-runner /bin/bash -c "gitlab-runner register --non-interactive --url ${gitlab_url} --registration-token ${token} --executor 'shell' --description ${description}"
 echo "============================ 注册runner完成 =============================="
   
+echo "============================ 给用户gitlab-runner安装jdk-17 =============================="
+docker exec -u gitlab-runner gitlab-runner /bin/bash -c "cd && wget https://mirrors.huaweicloud.com/openjdk/17/openjdk-17_linux-x64_bin.tar.gz"
+docker exec -u gitlab-runner gitlab-runner /bin/bash -c "cd && tar -zxvf openjdk-17_linux-x64_bin.tar.gz"
+echo "============================ 给用户gitlab-runner安装jdk-17 =============================="
+  
 echo "============================ 给用户gitlab-runner安装nvm(nodejs) =============================="
 docker exec -u gitlab-runner gitlab-runner /bin/bash -c "git clone https://gitee.com/mirrors/nvm ~/.nvm"
 docker cp ../assets/.bashrc gitlab-runner:/home/gitlab-runner/.bashrc
