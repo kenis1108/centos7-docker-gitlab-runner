@@ -222,7 +222,7 @@ docker exec gitlab-runner /bin/bash -c "gitlab-runner register --non-interactive
 # 开发环境(nodejs和ssh)就不需要重新配置
 ```
   
-1. 同一台服务器不同容器的情况
+2. 同一台服务器不同容器的情况
   
 ```bash
 # 新开一个容器--name需要换成跟已经存在的容器名不一样的
@@ -236,8 +236,8 @@ docker cp ../assets/.bashrc gitlab-runner1:/home/gitlab-runner/.bashrc
 docker exec -u gitlab-runner gitlab-runner1 /bin/bash -c "source ~/.bashrc && nvm install ${nodejs_version} && nvm use ${nodejs_version} && npm i -g yarn"
 ```
   
-1. 不同服务器重新跑脚本
-2. 根据公司提供的服务器性能,个人建议不要在同一台服务器配太多个runner,因为当同时有多个runner在执行作业时服务器内存不够会自动把后端java服务干掉
+3. 不同服务器重新跑脚本
+4. 根据公司提供的服务器性能,个人建议不要在同一台服务器配太多个runner,因为当同时有多个runner在执行作业时服务器内存不够会自动把后端java服务干掉
   
 ---
   
